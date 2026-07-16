@@ -153,3 +153,5 @@ The included `vulnerable.py` file contains examples of:
 ## Demo
 
 ![Scanner Output](images/demo.png)
+
+_Last updated: 2026-07-16_
