@@ -1,47 +1,36 @@
 # AI Security Scanner
 
-A Python-based security scanner that uses Google's Gemini API to analyze source code for common security vulnerabilities. The scanner identifies potential issues, assigns severity levels, and displays results with color-coded output to help prioritize fixes.
+A command-line tool that scans a source code file for security vulnerabilities using Google's Gemini API. Point it at a file, and it sends the code to Gemini 2.5 Flash with a security-review prompt, then prints the findings back to the terminal — sorted by severity and color-coded for quick scanning.
 
 ## Features
 
-* AI-powered vulnerability detection using Gemini 2.5 Flash
-* Severity ratings:
+* AI-powered vulnerability analysis via the Gemini API (`gemini-2.5-flash`)
+* Findings sorted by severity (Critical → High → Medium → Low)
+* Color-coded terminal output per severity level (via `colorama`)
+* Single-file, single-command usage — no config beyond an API key
+* Works on any source file that can be read as text (not limited to Python)
 
-  * Critical
-  * High
-  * Medium
-  * Low
-* Color-coded terminal output
-* Automatic sorting by severity
-* Simple command-line interface
-* Works on any source code file that can be read as text
+## Tech Stack
+
+* **Language:** Python
+* **AI model:** Google Gemini (`gemini-2.5-flash`) via the `google-genai` SDK
+* **CLI/output:** `colorama` for colored terminal text
+* **Config:** `python-dotenv` for loading the API key from a `.env` file
 
 ## Project Structure
 
 ```text
 .
-├── scanner.py
-├── vulnerable.py
-├── .env
-└── README.md
+├── scanner.py       # Main CLI: reads a file, queries Gemini, prints sorted/colored findings
+├── vulnerable.py    # Sample file with intentionally vulnerable code, for testing the scanner
+├── images/demo.png  # Screenshot used in this README
+└── .env             # Local Gemini API key (not committed with a real key)
 ```
-
-### scanner.py
-
-The main application. Reads a source code file, sends it to Gemini for analysis, sorts findings by severity, and displays color-coded results.
-
-### vulnerable.py
-
-A sample file containing intentionally vulnerable code for testing the scanner.
-
-### .env
-
-Stores your Gemini API key.
 
 ## Requirements
 
 * Python 3.10+
-* Google Gemini API key
+* A Google Gemini API key ([Google AI Studio](https://aistudio.google.com/apikey))
 
 ## Setup
 
@@ -52,47 +41,29 @@ git clone https://github.com/levibmackay/SecurityScanner.git
 cd SecurityScanner
 ```
 
-### 2. Create a virtual environment
+### 2. Create and activate a virtual environment
 
 Mac/Linux:
 
 ```bash
 python3 -m venv venv
-```
-
-Windows:
-
-```bash
-python -m venv venv
-```
-
-### 3. Activate the virtual environment
-
-Mac/Linux:
-
-```bash
 source venv/bin/activate
 ```
 
 Windows:
 
 ```bash
+python -m venv venv
 venv\Scripts\activate
 ```
 
-### 4. Install dependencies
+### 3. Install dependencies
 
 ```bash
 pip install google-genai python-dotenv colorama
 ```
 
-Or create a requirements.txt file and run:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Configure your API key
+### 4. Configure your API key
 
 Create a `.env` file in the project root:
 
@@ -100,18 +71,18 @@ Create a `.env` file in the project root:
 GOOGLE_API_KEY=your_api_key_here
 ```
 
+`scanner.py` exits with an error if `GOOGLE_API_KEY` isn't set.
+
 ## Usage
 
-Run the scanner and provide the path to the file you want analyzed:
+```bash
+python scanner.py <path_to_file>
+```
+
+Example, using the included sample file:
 
 ```bash
 python scanner.py vulnerable.py
-```
-
-Example:
-
-```bash
-python scanner.py app.py
 ```
 
 ## Example Output
@@ -119,36 +90,32 @@ python scanner.py app.py
 ```text
 Severity: Critical
 Vulnerability: SQL Injection
-Why: User input is directly concatenated into SQL queries.
+Why: User input is directly concatenated into a SQL query.
 Impact: Attackers can execute arbitrary SQL commands.
 Fix: Use parameterized queries.
-
 --------------------------------------------------
-
 Severity: High
 Vulnerability: Command Injection
-Why: User input is passed directly to system commands.
-Impact: Attackers may execute arbitrary commands.
-Fix: Validate input and avoid shell execution.
+Why: User input is passed directly to a shell command via os.system.
+Impact: Attackers may execute arbitrary shell commands.
+Fix: Avoid shell execution; validate and sanitize input.
 ```
 
 ## Sample Vulnerabilities Included
 
-The included `vulnerable.py` file contains examples of:
+`vulnerable.py` is a deliberately insecure file for exercising the scanner. It contains:
 
-* SQL Injection
+* SQL injection (unsanitized string interpolation into a query)
+* Command injection (`os.system` with unsanitized input)
 * Weak password hashing (MD5)
-* Command Injection
-* Hardcoded credentials
-* Exposed API secrets
+* Hardcoded credentials and an API secret in source
 
 ## How It Works
 
-1. Reads the target source code file.
-2. Sends the code to Gemini 2.5 Flash.
-3. Requests a structured security review.
-4. Sorts findings by severity.
-5. Displays color-coded results in the terminal.
+1. Reads the target file's contents as text.
+2. Fills a fixed security-review prompt with that code and sends it to Gemini 2.5 Flash.
+3. Splits the response into individual findings (separated by `---`) and sorts them by severity, based on keyword matching in each block.
+4. Prints each finding to the terminal, colored by severity (red for critical, light red for high, yellow for medium, green for low).
 
 ## Demo
 
