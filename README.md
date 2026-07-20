@@ -121,4 +121,11 @@ Fix: Avoid shell execution; validate and sanitize input.
 
 ![Scanner Output](images/demo.png)
 
-_Last updated: 2026-07-16_
+## Known Limitations
+
+* Severity sorting and coloring rely on keyword matching against the response text, not structured output from the model — a finding whose `Why`/`Impact` text happens to mention a different severity word than its own `Severity:` line can be misclassified.
+* No error handling for a missing/unreadable input file path; an invalid path raises an unhandled exception instead of a clean error message.
+* The security-review prompt and model name are hardcoded in `scanner.py`; there is no way to point at a different model or customize the prompt without editing source.
+* No automated test suite.
+
+_Last updated: 2026-07-20_
