@@ -128,7 +128,7 @@ Fix: Avoid shell execution; validate and sanitize input.
 * The security-review prompt and model name are hardcoded in `scanner.py`; there is no way to point at a different model or customize the prompt without editing source.
 * No automated test suite.
 
-_Last updated: 2026-07-20_
+_Last updated: July 22, 2026_
 
 _Last reviewed: 2026-07-20 19:33 MDT_
 
